@@ -102,7 +102,16 @@ if categorias_selecionadas:
     df_filtrado = df_filtrado[df_filtrado['Categoria do produto'].isin(categorias_selecionadas)]
 
 
+# Indicador de Faturamento Total (acima da Row 1)
+st.markdown("<br><br>", unsafe_allow_html=True)
+col_kpi, _ = st.columns([1, 3])
+with col_kpi:
+    faturamento_total = df_filtrado['Valor unitário'] * df_filtrado['Quantidade vendida']
+    valor_total = faturamento_total.sum()
 
+    st.markdown("### ☕ Faturamento Total (R$)")
+    st.markdown(f"<h1 style='color:#3E2C20; font-size: 40px;'>R$ {valor_total:,.2f}</h1>", unsafe_allow_html=True)
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 
@@ -184,7 +193,7 @@ def grafico_interativo_vendas_categoria(df):
     st.plotly_chart(fig_produtos, use_container_width=True)
 
 
-    
+
 def faturamento_mensal_total(df):
     st.subheader("Faturamento Mensal Total")
 

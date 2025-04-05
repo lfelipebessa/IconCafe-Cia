@@ -146,22 +146,16 @@ def faturamento_mes_unidade(df):
 
 
 
-# 2. Vendas por categoria e produto com interatividade real
+# 2. Vendas por categoria e produto (versão estável sem interatividade)
 def grafico_interativo_vendas_categoria(df):
     st.subheader("Análise de Vendas por Categoria e Produto")
 
-    # Inicializa os estados
-    if 'categoria_selecionada' not in st.session_state:
-        st.session_state['categoria_selecionada'] = None
-    if 'produto_selecionado' not in st.session_state:
-        st.session_state['produto_selecionado'] = None
-
-    # Agrupamentos
+    # Cálculo de faturamento e agrupamentos
     df['Faturamento'] = df['Valor unitário'] * df['Quantidade vendida']
     categorias = df.groupby('Categoria do produto')['Quantidade vendida'].sum().reset_index()
     produtos = df.groupby(['Categoria do produto', 'Nome Produto'])['Quantidade vendida'].sum().reset_index()
 
-    # === GRÁFICO 1: Categorias ===
+    # === GRÁFICO 1: Categorias de Produto ===
     fig_categoria = px.bar(
         categorias,
         x='Categoria do produto',
@@ -172,58 +166,25 @@ def grafico_interativo_vendas_categoria(df):
         color_discrete_sequence=cafe_palette1
     )
 
-    selected_cat = plotly_events(
-        fig_categoria,
-        click_event=True,
-        select_event=False,
-        override_height=400,
-        key="cat_event"
-    )
+    fig_categoria.update_layout(height=400)
+    st.plotly_chart(fig_categoria, use_container_width=True)
 
-    if selected_cat:
-        st.session_state['categoria_selecionada'] = selected_cat[0]['x']
-        st.session_state['produto_selecionado'] = None  # reset ao clicar em categoria
-
-    # === GRÁFICO 2: Produtos ===
-    if st.session_state['categoria_selecionada']:
-        dados_filtrados = produtos[produtos['Categoria do produto'] == st.session_state['categoria_selecionada']]
-        titulo = f'Produtos Mais Vendidos da Categoria: {st.session_state["categoria_selecionada"]}'
-    else:
-        dados_filtrados = produtos.copy()
-        titulo = 'Produtos Mais Vendidos (Todas as Categorias)'
-
+    # === GRÁFICO 2: Produtos (sem seleção interativa) ===
     fig_produtos = px.bar(
-        dados_filtrados,
+        produtos,
         x='Nome Produto',
         y='Quantidade vendida',
         color='Categoria do produto',
-        title=titulo,
+        title='Produtos Mais Vendidos (Todas as Categorias)',
         labels={'Quantidade vendida': 'Quantidade Vendida'},
         color_discrete_sequence=cafe_palette_contrast
     )
 
-    selected_prod = plotly_events(
-        fig_produtos,
-        click_event=True,
-        select_event=False,
-        override_height=400,
-        key="prod_event"
-    )
-
-    if selected_prod:
-        produto_clicado = selected_prod[0]['x']
-        st.session_state['produto_selecionado'] = produto_clicado
-        categoria_prod = produtos[produtos['Nome Produto'] == produto_clicado]['Categoria do produto'].iloc[0]
-        st.session_state['categoria_selecionada'] = categoria_prod  # sincroniza categoria com produto clicado
-
-    # === Botão para resetar seleção ===
-    if st.session_state['categoria_selecionada'] or st.session_state['produto_selecionado']:
-        if st.button("🔄 Limpar seleção"):
-            st.session_state['categoria_selecionada'] = None
-            st.session_state['produto_selecionado'] = None
+    fig_produtos.update_layout(xaxis_tickangle=-45, height=400)
+    st.plotly_chart(fig_produtos, use_container_width=True)
 
 
-
+    
 def faturamento_mensal_total(df):
     st.subheader("Faturamento Mensal Total")
 

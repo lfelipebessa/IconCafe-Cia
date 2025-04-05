@@ -101,16 +101,50 @@ if st.session_state.mes_selecionado != 'Todos':
 if categorias_selecionadas:
     df_filtrado = df_filtrado[df_filtrado['Categoria do produto'].isin(categorias_selecionadas)]
 
-
-# Indicador de Faturamento Total (acima da Row 1)
+# Indicadores no topo (3 colunas com caixinhas estilizadas)
 st.markdown("<br><br>", unsafe_allow_html=True)
-col_kpi, _ = st.columns([1, 3])
-with col_kpi:
-    faturamento_total = df_filtrado['Valor unitário'] * df_filtrado['Quantidade vendida']
-    valor_total = faturamento_total.sum()
+col1, col2, col3 = st.columns(3)
 
-    st.markdown("### ☕ Faturamento Total (R$)")
-    st.markdown(f"<h1 style='color:#3E2C20; font-size: 40px;'>R$ {valor_total:,.2f}</h1>", unsafe_allow_html=True)
+# Cores de fundo e texto para manter o estilo café
+card_style = """
+    background-color:#f5f0e6;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+"""
+
+# Indicador 1: Faturamento total
+with col1:
+    faturamento_total = (df_filtrado['Valor unitário'] * df_filtrado['Quantidade vendida']).sum()
+    st.markdown(f"""
+        <div style="{card_style}">
+            <h5 style='color:#3E2C20;'>☕ Faturamento Total</h5>
+            <h2 style='color:#3E2C20;'>R$ {faturamento_total:,.2f}</h2>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Indicador 2: Total de vendas
+with col2:
+    total_vendas = df_filtrado['Quantidade vendida'].sum()
+    st.markdown(f"""
+        <div style="{card_style}">
+            <h5 style='color:#3E2C20;'>📦 Quantidade Vendida</h5>
+            <h2 style='color:#3E2C20;'>{int(total_vendas):,}</h2>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Indicador 3: Ticket médio geral
+with col3:
+    ticket_medio = faturamento_total / len(df_filtrado) if len(df_filtrado) > 0 else 0
+    st.markdown(f"""
+        <div style="{card_style}">
+            <h5 style='color:#3E2C20;'>💳 Ticket Médio</h5>
+            <h2 style='color:#3E2C20;'>R$ {ticket_medio:,.2f}</h2>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Espaço entre os cards e os gráficos
 st.markdown("<br><br>", unsafe_allow_html=True)
 
 
